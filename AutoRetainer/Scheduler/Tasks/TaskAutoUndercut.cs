@@ -202,27 +202,27 @@ internal static class TaskAutoUndercut
         catch { return 0; }
     }
 
-    private static unsafe uint GetLowestMarketPrice(AtkUnitBase* addon)
+    private static unsafe uint GetLowestMarketPrice(AtkUnitBase* board)
+{
+    var myRetainerNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    if(C.OfflineData.TryGetFirst(x => x.CID == Svc.ClientState.LocalContentId, out var cdata))
     {
-        // ItemSearchResult lists market prices in a scrollable list.
-        // Node layout: list node → rows → price column text node.
-        // This mirrors how PennyPincher reads it.
-        try
-        {
-            // Node 9 is typically the first listing row's price text in ItemSearchResult.
-            // Walk through result rows and find the lowest price that isn't from our own retainer.
-            uint lowest = 0;
-            // Simplified: read first result row price (index 0 = cheapest since sorted ascending)
-            var priceNode = addon->GetNodeById(9);
-            if (priceNode == null) return 0;
-            var textNode = (AtkTextNode*)priceNode;
-            var priceStr = textNode->NodeText.ToString().Replace(",", "").Trim();
-            if (uint.TryParse(priceStr, out var price))
-                lowest = price;
-            return lowest;
-        }
-        catch { return 0; }
+        foreach(var r in cdata.RetainerData)
+            myRetainerNames.Add(r.Name.ToString());
     }
+
+    for(int i = 0; i < 20; i++)
+    {
+        var (retainerName, unitPrice) = GetBoardRow(board, i);
+        if(unitPrice == 0) break;
+
+        if(C.UndercutSkipIfSelf && myRetainerNames.Contains(retainerName))
+            continue;
+
+        return unitPrice;
+    }
+    return 0;
+}
 
     private static unsafe uint GetCurrentListingPrice(AtkUnitBase* addon)
     {
@@ -244,4 +244,5 @@ internal static class TaskAutoUndercut
         // For numeric input dialogs, callback(0, value) sets the number
         Callback.Fire(addon, false, 0, (int)value);
     }
+
 }
