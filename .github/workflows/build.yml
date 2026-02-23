@@ -26,6 +26,10 @@ jobs:
         run: |
           Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile dalamud.zip
           Expand-Archive -Path dalamud.zip -DestinationPath C:\dalamud -Force
+          # Also extract to the AppData path that hardcoded csproj references expect
+          $devPath = "$env:AppData\XIVLauncher\addon\Hooks\dev"
+          New-Item -ItemType Directory -Force -Path $devPath
+          Expand-Archive -Path dalamud.zip -DestinationPath $devPath -Force
         shell: powershell
 
       - name: Restore dependencies
