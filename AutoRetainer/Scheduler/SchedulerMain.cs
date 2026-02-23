@@ -171,6 +171,12 @@ internal static unsafe class SchedulerMain
                                         TaskEntrustDuplicates.EnqueueNew(selectedPlan);
                                     }
 
+                                    //Undercut Test
+                                    if(C.EnableAutoUndercut)
+                                    {
+                                        TaskAutoUndercut.Enqueue();
+                                    }
+
                                     //withdraw gil
                                     if(adata.WithdrawGil)
                                     {
