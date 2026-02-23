@@ -1,4 +1,4 @@
-﻿using AutoRetainerAPI.Configuration;
+using AutoRetainerAPI.Configuration;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.Reflection;
@@ -175,5 +175,31 @@ public class EntrustManager : InventoryManagementBase
                 }
             });
         }
+
+        // ─── Auto-Undercut Section ────────────────────────────────────────────
+        ImGui.Separator();
+        ImGuiEx.TextWrapped("Automatically undercut market board listings during retainer processing. Each retainer's sell list will be checked and any items no longer at the lowest price will be relisted at 1 gil (or a custom amount) below the cheapest offer.");
+        ImGui.Checkbox("Enable Auto-Undercut", ref C.EnableAutoUndercut);
+
+        if(C.EnableAutoUndercut)
+        {
+            ImGui.Indent();
+
+            ImGui.SetNextItemWidth(150f);
+            ImGui.InputInt("Undercut amount (gil)##undercutBy", ref C.UndercutBy);
+            if(C.UndercutBy < 1) C.UndercutBy = 1;
+            ImGuiEx.HelpMarker("How many gil below the current cheapest listing your price will be set to.");
+
+            ImGui.SetNextItemWidth(150f);
+            ImGui.InputInt("Minimum price floor (gil)##undercutMin", ref C.UndercutMinPrice);
+            if(C.UndercutMinPrice < 1) C.UndercutMinPrice = 1;
+            ImGuiEx.HelpMarker("Your listing will never be set below this price, regardless of what the market board shows.");
+
+            ImGui.Checkbox("Skip if cheapest listing belongs to own retainer##undercutSkipSelf", ref C.UndercutSkipIfSelf);
+            ImGuiEx.HelpMarker("If the current lowest price on the market board is already one of your own retainers, no adjustment will be made.");
+
+            ImGui.Unindent();
+        }
+        // ─────────────────────────────────────────────────────────────────────
     }
 }
