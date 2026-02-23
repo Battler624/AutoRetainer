@@ -34,6 +34,17 @@ jobs:
           Expand-Archive -Path dalamud.zip -DestinationPath C:\dalamud -Force
         shell: powershell
 
+      - name: Verify Dalamud path
+        run: |
+          $devPath = "$env:APPDATA\xivlauncher\addon\Hooks\dev"
+          Write-Host "Checking path: $devPath"
+          if (Test-Path $devPath) {
+            Get-ChildItem $devPath | Select-Object Name | Format-Table
+          } else {
+            Write-Host "PATH DOES NOT EXIST"
+          }
+        shell: powershell
+
       - name: Restore dependencies
         run: dotnet restore AutoRetainer.sln /p:DalamudLibPath=C:\dalamud
 
