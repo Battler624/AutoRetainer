@@ -1,0 +1,36 @@
+name: Build AutoRetainer
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:  # lets you trigger manually from the Actions tab
+
+jobs:
+  build:
+    runs-on: windows-latest  # Dalamud plugins must build on Windows
+
+    steps:
+      - name: Checkout repository + submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive  # pulls ECommons, FFXIVClientStructs, etc.
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Restore dependencies
+        run: dotnet restore AutoRetainer.sln
+
+      - name: Build (Release)
+        run: dotnet build AutoRetainer.sln --configuration Release --no-restore
+
+      - name: Upload DLL artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoRetainer
+          path: AutoRetainer/bin/Release/AutoRetainer.dll
+          if-no-files-found: error
