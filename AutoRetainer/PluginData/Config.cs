@@ -60,6 +60,12 @@ internal unsafe class Config
 
     public int ExtraFrameDelay = 0;
 
+    // Auto-undercut settings
+    public bool EnableAutoUndercut { get; set; } = false;
+    public int UndercutBy { get; set; } = 1;           // how many gil to undercut by
+    public bool SkipOwnRetainers { get; set; } = true; // don't undercut yourself
+    public uint UndercutMinPrice { get; set; } = 100;  // never go below this price
+    
     public bool _dontReassign = false;
     public bool OldRetainerSense = false;
     public bool RetainerSense = false;
