@@ -20,16 +20,18 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
+          dotnet-quality: 'preview'
 
       - name: Download Dalamud (staging)
         run: |
           Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile dalamud.zip
-          Expand-Archive -Path dalamud.zip -DestinationPath C:\dalamud -Force
-          # Also extract to the AppData path that hardcoded csproj references expect
-          $devPath = "$env:AppData\XIVLauncher\addon\Hooks\dev"
+          # Match the exact lowercase path the AutoRetainerAPI.csproj uses
+          $devPath = "$env:APPDATA\xivlauncher\addon\Hooks\dev"
           New-Item -ItemType Directory -Force -Path $devPath
           Expand-Archive -Path dalamud.zip -DestinationPath $devPath -Force
+          # Also extract to C:\dalamud for the main project
+          Expand-Archive -Path dalamud.zip -DestinationPath C:\dalamud -Force
         shell: powershell
 
       - name: Restore dependencies
