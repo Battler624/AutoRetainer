@@ -5,22 +5,28 @@ on:
     branches: [ master, main ]
   pull_request:
     branches: [ master, main ]
-  workflow_dispatch:  # lets you trigger manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest  # Dalamud plugins must build on Windows
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository + submodules
         uses: actions/checkout@v4
         with:
-          submodules: recursive  # pulls ECommons, FFXIVClientStructs, etc.
+          submodules: recursive
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
+
+      - name: Download Dalamud
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/stg/latest.zip -OutFile dalamud.zip
+          Expand-Archive -Path dalamud.zip -DestinationPath "$env:AppData\XIVLauncher\addon\Hooks\dev" -Force
+        shell: powershell
 
       - name: Restore dependencies
         run: dotnet restore AutoRetainer.sln
@@ -32,5 +38,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AutoRetainer
-          path: AutoRetainer/bin/Release/AutoRetainer.dll
+          path: |
+            AutoRetainer/bin/Release/**/AutoRetainer.dll
           if-no-files-found: error
